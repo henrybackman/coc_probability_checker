@@ -1,14 +1,14 @@
 import random
 import logging
+import statistics
 
 logger = logging.getLogger('coc_roll')
-logger.setLevel(logging.DEBUG)
+# logger.setLevel(logging.DEBUG)
 ch = logging.StreamHandler()
-ch.setLevel(logging.DEBUG)
+# ch.setLevel(logging.DEBUG)
 formatter = logging.Formatter('%(asctime)s - %(message)s')
 ch.setFormatter(formatter)
 logger.addHandler(ch)
-logger.debug('coc_roll logger created')
 
 class Die():
     def __init__(self, sides):
@@ -81,10 +81,47 @@ def simulate_skill_check(skill, num_bonus_dice=0, num_penalty_dice=0, num_simula
     print(f"Success rate: {successes / num_simulations}")
 
 
+def get_weapon_damage(max_damage=8):
+    die = Die(max_damage)
+    return die.roll()
+
+
+def simulate_multiple_shots(skill_level=25, num_shots=1, gun_max_damage=8, num_simulations=10):
+
+    skill = Skill(skill_level)
+
+    successes = 0
+    num_penalty_dice = 0
+
+    if num_shots > 1:
+        num_penalty_dice = 1
+
+    damage_distribution = {}
+    for _ in range(num_simulations):
+        total_damage = 0
+        for _ in range(num_shots):
+            if skill.check(num_penalty_dice=num_penalty_dice):
+                # calculate damage
+                damage = get_weapon_damage(max_damage=gun_max_damage)
+                total_damage += damage
+        logger.debug(f"total_damage: {total_damage}")
+        damage_distribution[total_damage] = damage_distribution.get(total_damage, 0) + 1
+
+    logger.debug(f"damage_distribution: {damage_distribution}")
+    return damage_distribution
+
+
 def main():
     handgun_skill = Skill(25)
-    logger.setLevel(logging.WARNING)
-    simulate_skill_check(handgun_skill, num_penalty_dice=1, num_simulations=400000)
+    handgun_damage = 8
+    logger.setLevel(logging.DEBUG)
+    res = simulate_multiple_shots(
+        skill_level=25, 
+        num_shots=3,
+        gun_max_damage=handgun_damage,
+        num_simulations=100
+    )
+    print(res)
 
 if __name__ == "__main__":
     main()
