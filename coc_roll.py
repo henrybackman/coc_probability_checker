@@ -111,15 +111,36 @@ def simulate_multiple_shots(skill_level=25, num_shots=1, gun_max_damage=8, num_s
     return damage_distribution
 
 
+def simulate_rate_of_success(skill_level=25, num_shots=1, num_penalty_dice=0, num_simulations=10):
+    skill = Skill(skill_level)
+
+    successes = 0
+
+    for _ in range(num_simulations):
+        if skill.check(num_penalty_dice=num_penalty_dice):
+            successes += 1
+
+    success_rate = successes / num_simulations
+    print(f"Success rate: {success_rate}")
+    return success_rate
+
+
 def main():
     handgun_skill = Skill(25)
     handgun_damage = 8
-    logger.setLevel(logging.DEBUG)
-    res = simulate_multiple_shots(
+    # logger.setLevel(logging.DEBUG)
+    # res = simulate_multiple_shots(
+    #     skill_level=25, 
+    #     num_shots=3,
+    #     gun_max_damage=handgun_damage,
+    #     num_simulations=100
+    # )
+
+    res = simulate_rate_of_success(
         skill_level=25, 
         num_shots=3,
-        gun_max_damage=handgun_damage,
-        num_simulations=100
+        num_penalty_dice=1,
+        num_simulations=10000
     )
     print(res)
 
